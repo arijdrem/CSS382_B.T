@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Leave a Review - {{ spot.name }} | UW Bothell Study Spot Finder{% endblock %}
+
+{% block content %}
+<div class="spot-hero">
+    <div class="container">
+        <a href="{{ url_for('spot_detail', spot_id=spot.id) }}" class="back-link">&larr; Back to {{ spot.name }}</a>
+        <h1>Leave a Review</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="review-form-container">
+        <div class="review-form-card">
+            <h2>Review {{ spot.name }}</h2>
+
+            {% if error %}
+                <div class="alert alert-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" class="review-form">
+                <div class="form-group">
+                    <label for="student_name">Your Name (Optional)</label>
+                    <input 
+                        type="text" 
+                        id="student_name" 
+                        name="student_name" 
+                        placeholder="e.g., Sarah M." 
+                        maxlength="100"
+                        class="form-control"
+                    >
+                    <small>Leave blank to post as "Anonymous"</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="rating">Rating *</label>
+                    <div class="rating-input">
+                        <span class="rating-display" id="ratingDisplay">Select a rating</span>
+                    </div>
+                    <div class="star-selector">
+                        {% for i in range(1, 6) %}
+                            <input 
+                                type="radio" 
+                                id="star{{ i }}" 
+                                name="rating" 
+                                value="{{ i }}" 
+                                required
+                                class="star-input"
+                            >
+                            <label for="star{{ i }}" class="star-label">★</label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="review_text">Your Review *</label>
+                    <textarea 
+                        id="review_text" 
+                        name="review_text" 
+                        rows="6" 
+                        placeholder="Share your experience studying at this spot. What did you like? Any tips for other students?" 
+                        maxlength="500"
+                        required
+                        class="form-control"
+                    ></textarea>
+                    <small id="charCount">0/500 characters</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-large">Submit Review</button>
+                <a href="{{ url_for('spot_detail', spot_id=spot.id) }}" class="btn btn-secondary btn-large">Cancel</a>
+            </form>
+
+            <div class="review-tips">
+                <h3>Tips for a Great Review:</h3>
+                <ul>
+                    <li>Be honest and fair in your assessment</li>
+                    <li>Share specific details about the environment</li>
+                    <li>Mention what type of study works best here</li>
+                    <li>Keep it respectful and helpful</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update character count
+    const textarea = document.getElementById('review_text');
+    const charCount = document.getElementById('charCount');
+    textarea.addEventListener('input', function() {
+        charCount.textContent = this.value.length + '/500 characters';
+    });
+
+    // Update rating display
+    const starInputs = document.querySelectorAll('.star-input');
+    const ratingDisplay = document.getElementById('ratingDisplay');
+    starInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            ratingDisplay.textContent = this.value + ' ⭐ - Thank you for rating!';
+        });
+    });
+</script>
+{% endblock %}

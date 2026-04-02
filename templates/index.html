@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}All Study Spots - UW Bothell Study Spot Finder{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <h1>Find Your Perfect Study Spot</h1>
+        <p>Discover the best places to study on and around UW Bothell campus</p>
+    </div>
+</div>
+
+<section class="filters-section" id="filters">
+    <div class="container">
+        <h2>Filter Study Spots</h2>
+        <form method="GET" class="filters-form">
+            <div class="filter-group">
+                <label for="noise_level">Noise Level:</label>
+                <select name="noise_level" id="noise_level">
+                    <option value="">All Noise Levels</option>
+                    {% for level in noise_levels %}
+                        <option value="{{ level }}" {% if level == selected_noise %}selected{% endif %}>
+                            {{ level|title }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="outlets">Outlets Available:</label>
+                <select name="outlets" id="outlets">
+                    <option value="">All (Yes/No)</option>
+                    <option value="yes" {% if selected_outlets == 'yes' %}selected{% endif %}>Yes</option>
+                    <option value="no" {% if selected_outlets == 'no' %}selected{% endif %}>No</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="vibe">Vibe:</label>
+                <select name="vibe" id="vibe">
+                    <option value="">All Vibes</option>
+                    {% for v in vibes %}
+                        <option value="{{ v }}" {% if v == selected_vibe %}selected{% endif %}>
+                            {{ v|title }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Clear Filters</a>
+        </form>
+    </div>
+</section>
+
+<section class="spots-section">
+    <div class="container">
+        <h2>Study Spots ({{ spots|length }})</h2>
+        
+        {% if spots %}
+            <div class="spots-grid">
+                {% for spot in spots %}
+                    <div class="spot-card">
+                        <div class="spot-header">
+                            <h3>{{ spot.name }}</h3>
+                            <div class="spot-rating">
+                                {% if spot.average_rating() > 0 %}
+                                    <span class="stars">
+                                        {% for i in range(int(spot.average_rating())) %}⭐{% endfor %}
+                                    </span>
+                                    <span class="rating-value">{{ "%.1f"|format(spot.average_rating()) }}</span>
+                                    <span class="review-count">({{ spot.reviews|length }} reviews)</span>
+                                {% else %}
+                                    <span class="no-reviews">No reviews yet</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <p class="spot-description">{{ spot.description }}</p>
+
+                        <div class="spot-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Noise Level:</span>
+                                <span class="detail-value noise-{{ spot.noise_level }}">{{ spot.noise_level|title }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Outlets:</span>
+                                <span class="detail-value">{{ '✓ Yes' if spot.outlets_available else '✗ No' }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Wi-Fi Quality:</span>
+                                <span class="detail-value">{{ "%.1f"|format(spot.wifi_quality) }}/5</span>
+                            </div>
+                        </div>
+
+                        <div class="vibe-tag">{{ spot.vibe|title }}</div>
+
+                        <a href="{{ url_for('spot_detail', spot_id=spot.id) }}" class="btn btn-primary btn-block">View Details & Reviews</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <p>No study spots match your filters. Try adjusting your criteria!</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Clear Filters</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
